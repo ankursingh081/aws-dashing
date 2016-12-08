@@ -7,7 +7,7 @@ AWS.config.update(
     {
         accessKeyId: config.AWS.ACCESSKEY,
         secretAccessKey: config.AWS.SECRETKEY,
-        region: 'us-east-1'
+        region: 'ap-southeast-1'
     }
 );
 
@@ -38,9 +38,32 @@ module.exports = {
 
     getEC2Instances: function (next){
         ec2.describeInstances(function(err, data){
+           // console.log(data);
             if (err) return next(err, null);
             next(null, data.Reservations);
         });
+    },
+
+    getEC2Desc: function (next){
+        ec2.describeInstances(function(err, data){
+           var ip=[];
+            if (err) return next(err, null);
+            var inst_id = '-';
+        for (var i = 0; i < data.Reservations.length; i++) {
+            var res = data.Reservations[i];
+            var instances = res.Instances;
+            for (var j = 0; j < instances.length; j++) {
+                var instanceID = instances[j].InstanceId;
+                var state = instances[j].State.Code;
+                var public_ip = instances[j].PublicIpAddress;
+                ip[i]=instances[j].PublicIpAddress;
+                var imageID = instances[j].ImageId;
+                console.log('instance ' + instanceID + " state " + state + " public ip " + public_ip + 'image id ' + imageID);
+        }
+    }
+        next(null, ip);
+    });
+
     },
 
     getElasticIPsLimit: function (next) {
@@ -164,9 +187,9 @@ module.exports = {
             if (err) return next(err, null);
             next(null, data.ResourceRecordSets);
         });
-    }
-}
+    },
 
+}
 /*
 
 route53.listHostedZones(function(err, data) {

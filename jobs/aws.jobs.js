@@ -5,7 +5,7 @@ var async = require('async'),
 
     summary = { ec2_instances:0, elastic_ips:0, elbs:0, security_groups:0, s3_buckets:0,
         s3_objects:0, rds_instances:0, ec_clusters:0, ec_nodes:0, ec_security_groups:0,
-        r53_hosted_zones:0, r53_records:0, ebs_volumes:0, ebs_snapshots:0 };
+        r53_hosted_zones:0, r53_records:0, ebs_volumes:0, ebs_snapshots:0, ec2_desc:0 };
 
 
 // DEFAULT CRON JOB, every x seconds
@@ -24,6 +24,22 @@ new CronJob(config.JOB_INTERVAL, function(){
                     summary.ec2_instances = length;
                     send_event('ec2', {value: length, max: limit});
                 }
+            })
+        }
+    });
+
+    aws_service.getEC2InstanceLimit(function(err, limit){
+        if (!err) {
+            aws_service.getEC2Desc(function(err, ec2_desc){
+                if (!err) {
+                   // console.log(ec2_desc);
+                     // for (var i=0;i<ec2_desc.length;i++)
+                     // {
+                        console.log(ec2_desc);
+                        ec2_desc = ec2_desc.toString().split("," ).join("\n");   
+                        console.log(ec2_desc);
+                        send_event('ec2_ip', {text: ec2_desc, max: limit});
+                }//}
             })
         }
     });
@@ -152,6 +168,7 @@ setInterval(function() {
         { label:"ElastiCache SG", value:summary.ec_security_groups },
         { label:"EBS Volumes", value:summary.ebs_volumes },
         { label:"EBS Snapshots", value:summary.ebs_snapshots }
+       // { label:"EC2 Description", value:summary.result }
     ] })
 }, 5 * 1000);
 

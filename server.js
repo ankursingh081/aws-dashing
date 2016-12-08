@@ -1,10 +1,12 @@
-var dashing = require('dashing-js').Dashing();
+var dashing = require('node-dashing-js').Dashing();
 
 //we can get the express app -> todo: rest api to get dashboards data
 var app = dashing.app
 app.get('/api/test', function(req, res) {
     res.send("Hello API");
 });
+
+
 
 // Set your auth token here
 //dashing.auth_token = 'YOUR_AUTH_TOKEN';
